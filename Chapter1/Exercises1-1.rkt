@@ -78,6 +78,44 @@
 (define (p) (p))
 (define (test x y)
   (if (= x 0) 0 y))
-; if we are using applicative-order we will get 0 since we evaluate first (= x 0) and we don't get into a loop
+; if we are using applicative-order we will get into an infinite loop
+; since we evaluate the arguments first and then apply therefore
+; we evaluate 0 (p) and (p) will give us an infinite loopq
 ; if we use normal-order we will expand first and in doing so we will put (if (= 0 0) 0 (p)) and
-; we will continue to expand the (p) infinitely until we get a stack overflow error (at least in other languages, idk how it works here)
+; then we will reduce by solving (= 0 0) and then we will solve the if by choosing 0
+; but since we don't need (p) we never evaluate it
+
+; EXERCISE 1.6
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+
+(define (new-if predicate then-clause else-clause)
+  (cond (predicate then-clause)
+        (else else-clause)))
+
+(define (sqrt-iter guess x) (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+; true 2 (sqrt-iter 2 4)
+;         true 2 4 (sqrt-iter (improve 2 4) 4)
+;         true 2 4 (sqrt-iter 2 4)
+; The problem here is that since we are using applivative-order we first evaluate the arguments
+; so we are going to keep on evaluating (sqrt-iter) forever because even if we get a true value in the predicate of new-if
+; we first have to evaluate the arguments of new-if one of which is sqrt iter which ends up leading us to an infinite recursive loop
+; TLDR you cannot exit because new-if requries all arguments to be evaluated first.
+
+; EXERCISE 1.7
+;> (sqrt 0.0001)
+;0.03230844833048122
+;> (sqrt 961)
+;31.00000414036355
