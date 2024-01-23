@@ -94,18 +94,19 @@
   (/ (+ x y) 2))
 
 (define (good-enough? guess x)
-  (< (abs (- (square guess) x)) 0.001))
+(< (abs (- (square guess) x)) 0.001))
+
 
 (define (new-if predicate then-clause else-clause)
   (cond (predicate then-clause)
         (else else-clause)))
 
-(define (sqrt-iter guess x) (if (good-enough? guess x)
-      guess
-      (sqrt-iter (improve guess x) x)))
+(define (sqrt-iter guess x) (new-if (good-enough? guess x)
+                guess
+                (sqrt-iter (improve guess x) x)))
 
 (define (sqrt x)
-  (sqrt-iter 1.0 x))
+  (sqrt-iter2 1.0 x))
 ; true 2 (sqrt-iter 2 4)
 ;         true 2 4 (sqrt-iter (improve 2 4) 4)
 ;         true 2 4 (sqrt-iter 2 4)
@@ -119,3 +120,25 @@
 ;0.03230844833048122
 ;> (sqrt 961)
 ;31.00000414036355
+;>(sqrt 10000000000000000000000000000000000)
+;1e+17
+; Once you higher than this number the computer does not finish
+; And really small numbers tend to have precision problems particularly once you go
+; lower than the specified precision of 0.001
+
+
+(define (good-enough?2 guess improved)
+  (< (abs (- guess improved)) 0.00001))
+
+(define (sqrt-iter2 guess x) (if (good-enough?2 guess (improve guess x))
+      guess
+      (sqrt-iter2 (improve guess x) x)))
+
+;> (sqrt 0.0001)
+; 0.010000714038711746
+;> (square (sqrt 0.0001))
+; 0.00010001428128408621
+;> (sqrt 12734129143847823910134)
+; 112845598690.63492
+;> (square (sqrt 12734129143847823910134))
+; 1.2734129143847825e+22
