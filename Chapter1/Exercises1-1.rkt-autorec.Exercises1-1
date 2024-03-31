@@ -1,0 +1,169 @@
+#lang scheme
+;EXERCISE 1.1
+10 
+; 10
+(+ 5 3 4)
+; 12
+(- 9 1)
+; 8
+(/ 6 2)
+; 3
+(+ (* 2 4) (- 4 6))
+; 6
+(define a 3)
+(define b (+ a 1))
+; b = 3+1 = 4 
+(+ a b (* a b))
+; + 3 4 12 = 19
+(= a b)
+; false 
+(if (and (> b a) (< b (* a b)))
+    b
+    a)
+; 4
+(cond ((= a 4) 6)
+      ((= b 4) (+ 6 7 a))
+      (else 25))
+; 16
+(+ 2 (if (> b a) b a))
+; 4+2 = 6
+(* (cond ((> a b) a)
+         ((< a b) b)
+         (else -1))
+   (+ a 1))
+; * 4 4 = 16
+
+
+;EXERCISE 1.2
+
+(/ (+ 5 4
+      (- 2
+         (- 3
+            (+ 6
+               (/ 4 5)))))
+   (* 3
+      (- 6 2)
+      (- 2 7)))
+; Results in -37/150=-0.2466666
+
+;EXERCISE 1.3
+(define (square x) (* x x))
+(define (2bigSquares a b c)
+  (cond ((and (>= a b) (>= b c))
+         (+ (square a)(square b)))
+        ((and (>= b a) (>= a c))
+         (+ (square b)(square a)))
+        ((and (>= a b) (>= c b))
+         (+ (square a)(square c)))
+        ((and (>= c a) (>= a b))
+         (+ (square c)(square a)))
+        ((and (>= c b) (>= b a))
+         (+ (square c)(square b)))
+        ((and (>= b c) (>= c a))
+         (+ (square b)(square c)))
+        ((and (= a c) (= c b))
+         (+ (square a)(square b)))))
+
+;EXERCISE 1.4
+(define (a-plus-abs-b a b)
+  ((if (> b 0) + -) a b))
+; We define a function called a-plus-abs-b in which
+; you input 2 values a and b and if
+; b is positibe you add them together like a+b
+; but if b is negative you add them like a- (-b)=a+b
+; this is possible since the operator that manipulates a and b
+; is a compound expression where it decides what to use - or + depending on the value of b
+
+; EXERCISE 1.5
+(define (p) (p))
+(define (test x y)
+  (if (= x 0) 0 y))
+; if we are using applicative-order we will get into an infinite loop
+; since we evaluate the arguments first and then apply therefore
+; we evaluate 0 (p) and (p) will give us an infinite loopq
+; if we use normal-order we will expand first and in doing so we will put (if (= 0 0) 0 (p)) and
+; then we will reduce by solving (= 0 0) and then we will solve the if by choosing 0
+; but since we don't need (p) we never evaluate it
+
+; EXERCISE 1.6
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (good-enough? guess x)
+(< (abs (- (square guess) x)) 0.001))
+
+
+(define (new-if predicate then-clause else-clause)
+  (cond (predicate then-clause)
+        (else else-clause)))
+
+(define (sqrt-iter guess x) (new-if (good-enough? guess x)
+                guess
+                (sqrt-iter (improve guess x) x)))
+
+(define (sqrt x)
+  (sqrt-iter2 1.0 x))
+; true 2 (sqrt-iter 2 4)
+;         true 2 4 (sqrt-iter (improve 2 4) 4)
+;         true 2 4 (sqrt-iter 2 4)
+; The problem here is that since we are using applivative-order we first evaluate the arguments
+; so we are going to keep on evaluating (sqrt-iter) forever because even if we get a true value in the predicate of new-if
+; we first have to evaluate the arguments of new-if one of which is sqrt iter which ends up leading us to an infinite recursive loop
+; TLDR you cannot exit because new-if requries all arguments to be evaluated first.
+
+; EXERCISE 1.7
+;> (sqrt 0.0001)
+;0.03230844833048122
+;> (sqrt 961)
+;31.00000414036355
+;>(sqrt 10000000000000000000000000000000000)
+;1e+17
+; Once you higher than this number the computer does not finish
+; And really small numbers tend to have precision problems particularly once you go
+; lower than the specified precision of 0.001
+
+
+(define (good-enough?2 guess improved)
+  (< (abs (- guess improved)) 0.00001))
+
+(define (sqrt-iter2 guess x) (if (good-enough?2 guess (improve guess x))
+      guess
+      (sqrt-iter2 (improve guess x) x)))
+
+;> (sqrt 0.0001)
+; 0.010000714038711746
+;> (square (sqrt 0.0001))
+; 0.00010001428128408621
+;> (sqrt 12734129143847823910134)
+; 112845598690.63492
+;> (square (sqrt 12734129143847823910134))
+; 1.2734129143847825e+22
+
+(define (cube x) (* x x x))
+
+(define (improveCube  guess x)
+  (/ (+ (/ x
+           (square guess))
+        (* 2 guess))
+     3))
+
+(define (cubert-iter guess x) (if (good-enough?2 guess (improveCube guess x))
+      guess
+      (cubert-iter (improveCube guess x) x)))
+
+(define (cubert x)
+  (cubert-iter 1.0 x))
+
+;> (cubert 27)
+; 3.0000005410641766
+;> (cubert 81)
+; 4.326748733642904
+;> (cube (cubert 81))
+; 81.00000127604474
+;> (cube (cubert 99))
+; 99.00006902076838
+
