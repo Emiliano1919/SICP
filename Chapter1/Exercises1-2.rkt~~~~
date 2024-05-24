@@ -158,20 +158,3 @@
 ;----------Estimate Fib-------------;
 (define (Fib n)(/ (- (expt (/ (+ 1 (sqrt 5)) 2) n)
                   (expt (/ (- 1 (sqrt 5)) 2) n)) (sqrt 5) ))
-; Fast-exponential
-
-(define (square b) (* b b))
-(define (fast-expt b n) (cond ((= n 0) 1)
-((even? n) (square (fast-expt b (/ n 2)))) (else (* b (fast-expt b (- n 1))))))
-
-;Exercise 1.16
-(define (Iexp b n)
-  (Exp-iter b n b))
-
-(define (Exp-iter b count product)
-  (cond ((= count 0) 1)
-        ((even? count) (Exp-iter (square b) (/ count 2)  b))
-        (else (Exp-iter (* product (square product)) (- count 1)  b))))
-
-
-
