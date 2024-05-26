@@ -195,3 +195,12 @@
 
 
 ;Exercice 1.18
+(define (multi a b)
+  (cond((even? b) (multi-iter a a b 1))
+       (else (multi-iter a 0 b 0))))
+(define (multi-iter a product b c)
+  (cond
+    ((and (= b 1) (= c 1)) product)
+    ((and (= b 0) (= c 0)) product)
+    ((even? b) (multi-iter a (double product) (halve b) c))
+        (else (multi-iter a (+ a product) (- b 1) c))))
