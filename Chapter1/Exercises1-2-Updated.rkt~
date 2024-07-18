@@ -175,3 +175,32 @@
   (cond ((= counter 1) product)
         ((even? counter) (expt-iter b (/ counter 2) (* product (* b b))))
         (else (expt-iter b (- counter 1) (* product b)))))
+
+;Exercie 1.17
+(define (* a b)
+  (if (= b 0)
+      0
+      (+ a (* a (- b 1)))))
+;Pre-work
+(define (double b) (+ b b))
+(define (halve b) (halve-iter 0 b))
+(define (halve-iter counter product)
+  (cond ((= product 0) counter)
+  (else (halve-iter (+ counter 1) (- product 2)))))
+; Actual Solution
+(define (fast-multi a b)
+  (cond ((= b 0) 0)
+   ((even? b) (double (fast-multi a (halve b))))
+   (else (+ a (fast-multi a  (- b 1))))))
+
+
+;Exercice 1.18
+(define (multi a b)
+  (cond((even? b) (multi-iter a a b 1))
+       (else (multi-iter a 0 b 0))))
+(define (multi-iter a product b c)
+  (cond
+    ((and (= b 1) (= c 1)) product)
+    ((and (= b 0) (= c 0)) product)
+    ((even? b) (multi-iter a (double product) (halve b) c))
+        (else (multi-iter a (+ a product) (- b 1) c))))
